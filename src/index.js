@@ -5,24 +5,27 @@ const DEBOUNCE_DELAY = 300;
 
 const countryInformation = document.querySelector('.country-info');
 const input = document.querySelector('#search-box');
+let countries;
 
 input.addEventListener('input', () => {
   fetchCountries()
-    .then(name => renderCountry(name))
+    .then(name => renderCountries(name))
     .catch(error => console.log(error));
 });
 
-function fetchCountries() {
-  return fetch('https://restcountries.com/v2/name/{name}').then(response => {
-    if (!response.ok) {
-      throw new Error(response.status);
-    }
+fetchCountries()
+  .then(renderCountries)
+  .catch(error => console.log(error));
+
+function fetchCountries(name) {
+  return fetch('https://restcountries.com/v2/all').then(response => {
     return response.json();
   });
 }
-function renderCountry({ name, capital, population, flags, languages }) {
-  const markup = name
-    .map(name => {
+
+function renderCountries(countries) {
+  const markup = countries
+    .map(({ name, capital, population, flags, languages }) => {
       return `<h2 class="country"><img src="${
         flags.svg
       }" alt="country flags" width = 40px> ${name}</h2>
@@ -31,5 +34,6 @@ function renderCountry({ name, capital, population, flags, languages }) {
          <p class="languages">Languages: ${Object.values(languages)}</p>`;
     })
     .join('');
+
   countryInformation.innerHTML = markup;
 }
