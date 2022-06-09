@@ -1,24 +1,26 @@
 import './css/styles.css';
-// import { debounce } from 'lodash';
+import debounce from 'lodash.debounce';
 
 const DEBOUNCE_DELAY = 300;
 
 const countryInformation = document.querySelector('.country-info');
-const input = document.querySelector('#search-box');
-let countries;
+const input = document.querySelector('#search-box').value;
 
-input.addEventListener('input', () => {
+input.addEventListener('input', debounce(onSearch, DEBOUNCE_DELAY));
+
+function onSearch(event) {
+  event.preventDefault();
+  input.trim();
+
   fetchCountries()
-    .then(name => renderCountries(name))
+    .then(renderCountries)
     .catch(error => console.log(error));
-});
-
-fetchCountries()
-  .then(renderCountries)
-  .catch(error => console.log(error));
+}
 
 function fetchCountries(name) {
-  return fetch('https://restcountries.com/v2/all').then(response => {
+  return fetch(
+    `https://restcountries.com/v3.1/name/${name}?fields=name,capital,population,flags,languages`
+  ).then(response => {
     return response.json();
   });
 }
